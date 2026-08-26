@@ -75,7 +75,7 @@ body {
 
 
 /* ==================================================
-   RP MASKER — NORMALE MODUS
+   RP MASKER NORMAAL
    ================================================== */
 
 #rpMask {
@@ -135,7 +135,7 @@ body {
 
     overflow: hidden;
 
-    z-index: 1;
+    z-index: 10;
 }
 
 
@@ -167,7 +167,7 @@ body {
 }
 
 
-/* Linker oog */
+/* Linker beeld */
 
 #vrLeft .vrVideo {
 
@@ -175,7 +175,7 @@ body {
 }
 
 
-/* Rechter oog */
+/* Rechter beeld */
 
 #vrRight .vrVideo {
 
@@ -184,7 +184,7 @@ body {
 
 
 /* ==================================================
-   VR MASKER
+   RP MASKER VR
    ================================================== */
 
 .vrMask {
@@ -224,7 +224,7 @@ body {
 
 
 /* ==================================================
-   CONTROLS
+   BEDIENING
    ================================================== */
 
 #controls {
@@ -235,16 +235,13 @@ body {
     right: 0;
     bottom: 0;
 
-    z-index: 30;
+    z-index: 100;
 
     width: 100%;
 
     padding:
-
         15px
-
         15px
-
         calc(
             15px +
             env(safe-area-inset-bottom)
@@ -264,6 +261,38 @@ body {
     backdrop-filter: blur(8px);
 
     -webkit-backdrop-filter: blur(8px);
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+}
+
+
+/* ==================================================
+   VR: BEDIENING VERBERGEN
+   ================================================== */
+
+body.vrMode #controls {
+
+    opacity: 0;
+
+    transform:
+        translateY(100%);
+
+    pointer-events: none;
+}
+
+
+/* Wanneer bediening tijdelijk zichtbaar is */
+
+body.vrControlsVisible #controls {
+
+    opacity: 1;
+
+    transform:
+        translateY(0);
+
+    pointer-events: auto;
 }
 
 
@@ -370,12 +399,6 @@ body.vrMode #vrView {
    FULLSCREEN
    ================================================== */
 
-/*
-   Wanneer de browser fullscreen gebruikt,
-   blijven alle onderdelen het volledige
-   scherm gebruiken.
-*/
-
 :fullscreen #normalView {
 
     width: 100vw;
@@ -401,7 +424,7 @@ body.vrMode #vrView {
 }
 
 
-/* Safari / iPhone */
+/* Safari */
 
 :-webkit-full-screen #normalView {
 
@@ -429,7 +452,7 @@ body.vrMode #vrView {
 
 
 /* ==================================================
-   FULLSCREEN + VR
+   FULLSCREEN VR
    ================================================== */
 
 :fullscreen #vrView {
@@ -441,6 +464,7 @@ body.vrMode #vrView {
 
 :fullscreen .vrEye {
 
+    width: 50%;
     height: 100vh;
 }
 
@@ -461,6 +485,7 @@ body.vrMode #vrView {
 
 :-webkit-full-screen .vrEye {
 
+    width: 50%;
     height: 100vh;
 }
 
@@ -492,6 +517,7 @@ body.vrMode #vrView {
         border-radius:
             20px 20px 0 0;
     }
+
 }
 
 </style>
@@ -601,8 +627,6 @@ body.vrMode #vrView {
 
     </button>
 
-
-    <!-- GEZICHTSVELD -->
 
     <label>
 
@@ -749,14 +773,9 @@ function updateView() {
 
 
     /*
-       De waarde bepaalt de grootte
-       van het centrale zichtbare gebied.
-
-       100% = bijna volledig beeld
-
-       5% = zeer klein centraal beeld
+       Bepaal de grootte van het
+       centrale gezichtsveld.
     */
-
 
     const width =
         5 + (fov * 0.95);
@@ -807,10 +826,6 @@ async function startCamera() {
     }
 
 
-    /*
-       Oude stream stoppen.
-    */
-
     if (stream) {
 
         stream
@@ -848,18 +863,9 @@ async function startCamera() {
                 });
 
 
-        /*
-           Normaal camerabeeld
-        */
-
         camera.srcObject =
             stream;
 
-
-        /*
-           Beide VR-ogen gebruiken
-           dezelfde camera.
-        */
 
         vrVideoLeft.srcObject =
             stream;
@@ -897,7 +903,7 @@ async function startCamera() {
         ) {
 
             status.textContent =
-                "Cameratoegang is geweigerd. Geef deze website toegang tot de camera.";
+                "Cameratoegang is geweigerd.";
 
         }
 
@@ -949,107 +955,46 @@ async function switchCamera() {
 
 
 /* ==================================================
-   VR MODUS
-   ================================================== */
-
-function toggleVR() {
-
-
-    vrMode =
-        !vrMode;
-
-
-    if (vrMode) {
-
-
-        document.body
-            .classList
-            .add(
-                "vrMode"
-            );
-
-
-        vrButton.textContent =
-            "📱 Normale weergave";
-
-
-    }
-    else {
-
-
-        document.body
-            .classList
-            .remove(
-                "vrMode"
-            );
-
-
-        vrButton.textContent =
-            "🥽 VR-modus";
-    }
-}
-
-
-/* ==================================================
    FULLSCREEN
    ================================================== */
 
-async function toggleFullscreen() {
+async function enterFullscreen() {
 
 
     try {
 
 
         if (
-            !document.fullscreenElement
+            document.fullscreenElement
         ) {
 
-
-            if (
-                document.documentElement
-                    .requestFullscreen
-            ) {
-
-
-                await document
-                    .documentElement
-                    .requestFullscreen();
-
-
-            }
-            else if (
-                document.documentElement
-                    .webkitRequestFullscreen
-            ) {
-
-
-                await document
-                    .documentElement
-                    .webkitRequestFullscreen();
-
-            }
-
-
+            return true;
         }
-        else {
 
 
-            if (
-                document.exitFullscreen
-            ) {
+        if (
+            document.documentElement
+                .requestFullscreen
+        ) {
 
-                await document
-                    .exitFullscreen();
+            await document
+                .documentElement
+                .requestFullscreen();
 
-            }
-            else if (
-                document.webkitExitFullscreen
-            ) {
+            return true;
+        }
 
-                await document
-                    .webkitExitFullscreen();
 
-            }
+        if (
+            document.documentElement
+                .webkitRequestFullscreen
+        ) {
+
+            await document
+                .documentElement
+                .webkitRequestFullscreen();
+
+            return true;
         }
 
 
@@ -1061,7 +1006,193 @@ async function toggleFullscreen() {
             error
         );
     }
+
+
+    return false;
 }
+
+
+/* ==================================================
+   FULLSCREEN VERLATEN
+   ================================================== */
+
+async function exitFullscreen() {
+
+
+    try {
+
+
+        if (
+            document.exitFullscreen
+        ) {
+
+            await document
+                .exitFullscreen();
+
+        }
+
+        else if (
+            document.webkitExitFullscreen
+        ) {
+
+            await document
+                .webkitExitFullscreen();
+
+        }
+
+
+    }
+    catch (error) {
+
+        console.log(error);
+    }
+}
+
+
+/* ==================================================
+   VR MODUS
+   ================================================== */
+
+async function toggleVR() {
+
+
+    vrMode =
+        !vrMode;
+
+
+    if (vrMode) {
+
+
+        /*
+           VR inschakelen
+        */
+
+        document.body
+            .classList
+            .add(
+                "vrMode"
+            );
+
+
+        /*
+           Bedieningspaneel verbergen
+        */
+
+        document.body
+            .classList
+            .remove(
+                "vrControlsVisible"
+            );
+
+
+        vrButton.textContent =
+            "📱 Normale weergave";
+
+
+        /*
+           Probeer automatisch
+           fullscreen te openen.
+        */
+
+        await enterFullscreen();
+
+
+    }
+    else {
+
+
+        /*
+           VR uitschakelen
+        */
+
+        document.body
+            .classList
+            .remove(
+                "vrMode"
+            );
+
+
+        document.body
+            .classList
+            .remove(
+                "vrControlsVisible"
+            );
+
+
+        vrButton.textContent =
+            "🥽 VR-modus";
+
+    }
+}
+
+
+/* ==================================================
+   TIK OP SCHERM
+   ================================================== */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+
+        /*
+           In VR-modus kunnen we met een
+           tik de bediening zichtbaar maken.
+
+           Als je op een knop tikt,
+           doen we niets extra's.
+        */
+
+        if (!vrMode) {
+
+            return;
+        }
+
+
+        if (
+            event.target.closest(
+                "#controls"
+            )
+        ) {
+
+            return;
+        }
+
+
+        document.body
+            .classList
+            .toggle(
+                "vrControlsVisible"
+            );
+
+    }
+);
+
+
+/* ==================================================
+   FULLSCREEN KNOP
+   ================================================== */
+
+fullscreenButton.addEventListener(
+    "click",
+    async function() {
+
+
+        if (
+            document.fullscreenElement
+        ) {
+
+            await exitFullscreen();
+
+        }
+        else {
+
+            await enterFullscreen();
+
+        }
+
+    }
+);
 
 
 /* ==================================================
@@ -1086,12 +1217,6 @@ vrButton.addEventListener(
 );
 
 
-fullscreenButton.addEventListener(
-    "click",
-    toggleFullscreen
-);
-
-
 slider.addEventListener(
     "input",
     updateView
@@ -1106,7 +1231,7 @@ updateView();
 
 
 /* ==================================================
-   CAMERA STOPPEN
+   CAMERA STOPPEN BIJ VERLATEN
    ================================================== */
 
 window.addEventListener(
@@ -1122,9 +1247,9 @@ window.addEventListener(
                         track.stop()
                 );
         }
+
     }
 );
-
 
 </script>
 
