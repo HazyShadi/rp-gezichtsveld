@@ -12,6 +12,10 @@
 
 <style>
 
+/* ==================================================
+   BASIS
+   ================================================== */
+
 * {
     box-sizing: border-box;
 }
@@ -20,19 +24,43 @@ html,
 body {
     margin: 0;
     padding: 0;
+
     width: 100%;
     height: 100%;
+
     overflow: hidden;
+
     background: #000;
+
     font-family: Arial, sans-serif;
 }
 
-/* =========================
-   CAMERA
-   ========================= */
+
+/* ==================================================
+   NORMALE WEERGAVE
+   ================================================== */
+
+#normalView {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+
+    background: #000;
+
+    z-index: 1;
+}
+
 
 #camera {
-    position: fixed;
+
+    position: absolute;
+
     inset: 0;
 
     width: 100%;
@@ -40,151 +68,220 @@ body {
 
     object-fit: cover;
 
+    display: block;
+
     background: #000;
-
-    z-index: 1;
-
-    transform: scale(1);
-
-    filter:
-        contrast(var(--contrast))
-        brightness(var(--brightness));
-
-    transition:
-        filter 0.2s ease,
-        transform 0.2s ease;
 }
 
-/* =========================
-   RP GEZICHTSVELD MASKER
-   ========================= */
+
+/* ==================================================
+   RP MASKER — NORMALE MODUS
+   ================================================== */
 
 #rpMask {
+
     position: fixed;
+
     inset: 0;
 
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
 
     z-index: 5;
 
     pointer-events: none;
 
-    /*
-       Het centrale gedeelte blijft transparant.
-       Naar de buitenkant wordt het beeld steeds donkerder.
-    */
-
     background:
+
         radial-gradient(
-            ellipse var(--field-width) var(--field-height)
+
+            ellipse
+            var(--field-width)
+            var(--field-height)
+
             at center,
 
-            rgba(0,0,0,0) 0%,
+            transparent 0%,
 
-            rgba(0,0,0,0) 55%,
+            transparent 50%,
 
-            rgba(0,0,0,0.15) 65%,
+            rgba(0,0,0,0.10) 60%,
 
-            rgba(0,0,0,0.55) 78%,
+            rgba(0,0,0,0.45) 75%,
 
-            rgba(0,0,0,0.88) 90%,
+            rgba(0,0,0,0.85) 90%,
 
             #000 100%
         );
-
-    transition: background 0.2s ease;
 }
 
-/*
-   Extra subtiele donkere rand.
-   Hierdoor is het effect minder "perfect rond".
-*/
 
-#rpVignette {
+/* ==================================================
+   VR WEERGAVE
+   ================================================== */
+
+#vrView {
+
     position: fixed;
+
     inset: 0;
 
-    z-index: 6;
+    width: 100vw;
+    height: 100vh;
+
+    display: none;
+
+    background: #000;
+
+    overflow: hidden;
+
+    z-index: 1;
+}
+
+
+.vrEye {
+
+    position: relative;
+
+    width: 50%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #000;
+}
+
+
+.vrVideo {
+
+    position: absolute;
+
+    top: 0;
+
+    width: 200%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+}
+
+
+/* Linker oog */
+
+#vrLeft .vrVideo {
+
+    left: 0;
+}
+
+
+/* Rechter oog */
+
+#vrRight .vrVideo {
+
+    left: -100%;
+}
+
+
+/* ==================================================
+   VR MASKER
+   ================================================== */
+
+.vrMask {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
 
     pointer-events: none;
 
     background:
+
         radial-gradient(
-            ellipse at center,
-            transparent 45%,
-            rgba(0,0,0,0.12) 70%,
-            rgba(0,0,0,0.55) 100%
+
+            ellipse
+            var(--field-width)
+            var(--field-height)
+
+            at center,
+
+            transparent 0%,
+
+            transparent 50%,
+
+            rgba(0,0,0,0.10) 60%,
+
+            rgba(0,0,0,0.45) 75%,
+
+            rgba(0,0,0,0.85) 90%,
+
+            #000 100%
         );
 }
 
-/* =========================
-   NACHT / LAAG CONTRAST
-   ========================= */
 
-#nightOverlay {
-    position: fixed;
-    inset: 0;
-
-    z-index: 7;
-
-    pointer-events: none;
-
-    background:
-        rgba(20, 20, 20, var(--night-opacity));
-
-    mix-blend-mode: multiply;
-
-    transition:
-        opacity 0.2s ease;
-}
-
-/* =========================
-   BEDIENING
-   ========================= */
+/* ==================================================
+   CONTROLS
+   ================================================== */
 
 #controls {
+
     position: fixed;
 
     left: 0;
     right: 0;
     bottom: 0;
 
-    z-index: 20;
+    z-index: 30;
+
+    width: 100%;
 
     padding:
-        20px
-        20px
-        calc(20px + env(safe-area-inset-bottom));
 
-    background: rgba(0,0,0,0.78);
+        15px
+
+        15px
+
+        calc(
+            15px +
+            env(safe-area-inset-bottom)
+        );
+
+    background:
+        rgba(0,0,0,0.82);
 
     color: white;
 
     text-align: center;
 
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-
     max-height: 55vh;
 
     overflow-y: auto;
+
+    backdrop-filter: blur(8px);
+
+    -webkit-backdrop-filter: blur(8px);
 }
 
-/* =========================
+
+/* ==================================================
    KNOPPEN
-   ========================= */
+   ================================================== */
 
 button {
+
     display: block;
 
     width: min(90%, 420px);
 
-    margin: 10px auto;
+    margin: 8px auto;
 
     padding: 15px;
 
-    border: 0;
+    border: none;
 
     border-radius: 14px;
 
@@ -194,105 +291,206 @@ button {
 
     cursor: pointer;
 
-    color: #111;
+    background: white;
 
-    background: #fff;
+    color: black;
 
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color:
+        transparent;
 }
 
+
 button:active {
+
     transform: scale(0.98);
 }
 
-/* =========================
-   LABELS
-   ========================= */
+
+/* ==================================================
+   SLIDER
+   ================================================== */
 
 label {
+
     display: block;
 
-    font-size: 19px;
+    margin-top: 15px;
 
-    margin-top: 18px;
-
-    margin-bottom: 5px;
+    font-size: 18px;
 }
 
-.value {
-    font-weight: bold;
-}
-
-/* =========================
-   SLIDERS
-   ========================= */
 
 input[type="range"] {
+
     display: block;
 
     width: min(90%, 500px);
 
-    margin: 8px auto;
-
     height: 35px;
+
+    margin: 5px auto 10px;
 
     accent-color: white;
 }
 
-/* =========================
+
+/* ==================================================
    STATUS
-   ========================= */
+   ================================================== */
 
 #status {
-    margin-top: 10px;
-
-    font-size: 16px;
-
-    color: #cccccc;
 
     min-height: 22px;
+
+    margin-top: 8px;
+
+    font-size: 15px;
+
+    color: #ccc;
 }
 
-/* =========================
-   UITLEG
-   ========================= */
 
-#info {
-    width: min(90%, 600px);
+/* ==================================================
+   VR MODUS
+   ================================================== */
 
-    margin: 15px auto 0;
+body.vrMode #normalView {
 
-    font-size: 14px;
-
-    line-height: 1.4;
-
-    color: #aaa;
+    display: none;
 }
 
-/* =========================
-   VOLLEDIG SCHERM
-   ========================= */
 
-body.fullscreen #controls {
-    background: rgba(0,0,0,0.65);
+body.vrMode #vrView {
+
+    display: flex;
 }
 
-/* =========================
+
+/* ==================================================
+   FULLSCREEN
+   ================================================== */
+
+/*
+   Wanneer de browser fullscreen gebruikt,
+   blijven alle onderdelen het volledige
+   scherm gebruiken.
+*/
+
+:fullscreen #normalView {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:fullscreen #camera {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:fullscreen #rpMask {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+/* Safari / iPhone */
+
+:-webkit-full-screen #normalView {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:-webkit-full-screen #camera {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:-webkit-full-screen #rpMask {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+/* ==================================================
+   FULLSCREEN + VR
+   ================================================== */
+
+:fullscreen #vrView {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:fullscreen .vrEye {
+
+    height: 100vh;
+}
+
+
+:fullscreen .vrMask {
+
+    width: 100%;
+    height: 100%;
+}
+
+
+:-webkit-full-screen #vrView {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:-webkit-full-screen .vrEye {
+
+    height: 100vh;
+}
+
+
+:-webkit-full-screen .vrMask {
+
+    width: 100%;
+    height: 100%;
+}
+
+
+/* ==================================================
    DESKTOP
-   ========================= */
+   ================================================== */
 
 @media (min-width: 800px) {
 
     #controls {
+
         max-width: 650px;
 
         left: 50%;
 
         right: auto;
 
-        transform: translateX(-50%);
+        transform:
+            translateX(-50%);
 
-        border-radius: 20px 20px 0 0;
+        border-radius:
+            20px 20px 0 0;
     }
 }
 
@@ -302,60 +500,122 @@ body.fullscreen #controls {
 
 <body>
 
-<!-- =========================
-     CAMERA
-     ========================= -->
 
-<video
-    id="camera"
-    autoplay
-    playsinline
-    muted>
-</video>
+<!-- ==================================================
+     NORMALE CAMERA
+     ================================================== -->
 
+<div id="normalView">
 
-<!-- =========================
-     RP MASKER
-     ========================= -->
+    <video
+        id="camera"
+        autoplay
+        playsinline
+        muted>
+    </video>
 
-<div id="rpMask"></div>
+    <div id="rpMask"></div>
 
-<div id="rpVignette"></div>
-
-<div id="nightOverlay"></div>
+</div>
 
 
-<!-- =========================
+<!-- ==================================================
+     VR MODUS
+     ================================================== -->
+
+<div id="vrView">
+
+
+    <!-- LINKER OOG -->
+
+    <div
+        id="vrLeft"
+        class="vrEye">
+
+        <video
+            id="vrVideoLeft"
+            class="vrVideo"
+            autoplay
+            playsinline
+            muted>
+        </video>
+
+        <div class="vrMask"></div>
+
+    </div>
+
+
+    <!-- RECHTER OOG -->
+
+    <div
+        id="vrRight"
+        class="vrEye">
+
+        <video
+            id="vrVideoRight"
+            class="vrVideo"
+            autoplay
+            playsinline
+            muted>
+        </video>
+
+        <div class="vrMask"></div>
+
+    </div>
+
+
+</div>
+
+
+<!-- ==================================================
      BEDIENING
-     ========================= -->
+     ================================================== -->
 
 <div id="controls">
 
+
     <button id="start">
+
         📷 Camera starten
+
     </button>
 
 
     <button id="switch">
+
         🔄 Camera omkeren
+
+    </button>
+
+
+    <button id="vrButton">
+
+        🥽 VR-modus
+
     </button>
 
 
     <button id="fullscreen">
+
         ⛶ Volledig scherm
+
     </button>
 
 
     <!-- GEZICHTSVELD -->
 
-    <label for="fov">
+    <label>
+
         Gezichtsveld:
-        <span
-            id="value"
-            class="value">
+
+        <strong id="value">
+
             100%
-        </span>
+
+        </strong>
+
     </label>
+
 
     <input
         id="fov"
@@ -366,105 +626,97 @@ body.fullscreen #controls {
         step="1">
 
 
-    <!-- CONTRAST -->
-
-    <label for="contrast">
-        Contrast:
-        <span
-            id="contrastValue"
-            class="value">
-            100%
-        </span>
-    </label>
-
-    <input
-        id="contrast"
-        type="range"
-        min="60"
-        max="160"
-        value="100"
-        step="1">
-
-
-    <!-- NACHTZICHT -->
-
-    <label for="night">
-        Nacht / slecht contrast:
-        <span
-            id="nightValue"
-            class="value">
-            0%
-        </span>
-    </label>
-
-    <input
-        id="night"
-        type="range"
-        min="0"
-        max="70"
-        value="0"
-        step="1">
-
-
     <div id="status">
+
         Camera nog niet gestart.
+
     </div>
 
 
-    <div id="info">
-        Deze simulatie geeft een indruk van een beperkt
-        gezichtsveld zoals dat bij RP kan voorkomen.
-        De instellingen zijn een visuele benadering en
-        vormen geen medische simulatie.
+    <div style="
+        max-width:600px;
+        margin:10px auto;
+        color:#aaa;
+        font-size:14px;
+        line-height:1.4;
+    ">
+
+        100% = normaal gezichtsveld.<br>
+
+        5% = zeer sterk beperkt
+        centraal gezichtsveld.
+
     </div>
+
 
 </div>
 
 
 <script>
 
+
 /* ==================================================
    ELEMENTEN
    ================================================== */
 
-const video =
-    document.getElementById("camera");
+const camera =
+    document.getElementById(
+        "camera"
+    );
+
+
+const vrVideoLeft =
+    document.getElementById(
+        "vrVideoLeft"
+    );
+
+
+const vrVideoRight =
+    document.getElementById(
+        "vrVideoRight"
+    );
+
 
 const startButton =
-    document.getElementById("start");
+    document.getElementById(
+        "start"
+    );
+
 
 const switchButton =
-    document.getElementById("switch");
+    document.getElementById(
+        "switch"
+    );
+
+
+const vrButton =
+    document.getElementById(
+        "vrButton"
+    );
+
 
 const fullscreenButton =
-    document.getElementById("fullscreen");
+    document.getElementById(
+        "fullscreen"
+    );
+
 
 const slider =
-    document.getElementById("fov");
+    document.getElementById(
+        "fov"
+    );
+
 
 const value =
-    document.getElementById("value");
+    document.getElementById(
+        "value"
+    );
 
-const contrastSlider =
-    document.getElementById("contrast");
-
-const contrastValue =
-    document.getElementById("contrastValue");
-
-const nightSlider =
-    document.getElementById("night");
-
-const nightValue =
-    document.getElementById("nightValue");
 
 const status =
-    document.getElementById("status");
-
-const rpMask =
-    document.getElementById("rpMask");
-
-const nightOverlay =
-    document.getElementById("nightOverlay");
+    document.getElementById(
+        "status"
+    );
 
 
 /* ==================================================
@@ -473,48 +725,45 @@ const nightOverlay =
 
 let stream = null;
 
-let facingMode = "environment";
+let facingMode =
+    "environment";
+
+let vrMode = false;
 
 
 /* ==================================================
-   RP GEZICHTSVELD
+   GEZICHTSVELD
    ================================================== */
 
 function updateView() {
 
+
     const fov =
-        Number(slider.value);
+        Number(
+            slider.value
+        );
+
 
     value.textContent =
         fov + "%";
 
 
     /*
-       We zoomen het camerabeeld NIET meer in.
+       De waarde bepaalt de grootte
+       van het centrale zichtbare gebied.
 
-       Het beeld blijft schermvullend.
+       100% = bijna volledig beeld
 
-       Alleen het zichtbare centrale gebied
-       wordt kleiner.
+       5% = zeer klein centraal beeld
     */
 
-    video.style.transform =
-        "scale(1)";
-
-
-    /*
-       Berekening van het centrale
-       gezichtsveld.
-
-       100% = groot centraal gebied
-       20%  = klein centraal gebied
-    */
 
     const width =
-        30 + (fov * 0.70);
+        5 + (fov * 0.95);
+
 
     const height =
-        25 + (fov * 0.65);
+        5 + (fov * 0.90);
 
 
     document.documentElement
@@ -535,82 +784,41 @@ function updateView() {
 
 
 /* ==================================================
-   CONTRAST
-   ================================================== */
-
-function updateContrast() {
-
-    const contrast =
-        Number(contrastSlider.value);
-
-    contrastValue.textContent =
-        contrast + "%";
-
-    document.documentElement
-        .style
-        .setProperty(
-            "--contrast",
-            (contrast / 100)
-        );
-}
-
-
-/* ==================================================
-   NACHT / SLECHT CONTRAST
-   ================================================== */
-
-function updateNight() {
-
-    const night =
-        Number(nightSlider.value);
-
-    nightValue.textContent =
-        night + "%";
-
-    document.documentElement
-        .style
-        .setProperty(
-            "--night-opacity",
-            (night / 100)
-        );
-}
-
-
-/* ==================================================
    CAMERA STARTEN
    ================================================== */
 
 async function startCamera() {
 
+
     status.textContent =
         "Camera wordt gestart...";
 
 
-    /*
-       Controleer browserondersteuning.
-    */
-
     if (
         !navigator.mediaDevices ||
-        !navigator.mediaDevices.getUserMedia
+        !navigator.mediaDevices
+            .getUserMedia
     ) {
 
         status.textContent =
-            "Deze browser ondersteunt geen cameratoegang.";
+            "Deze browser ondersteunt geen camera.";
 
         return;
     }
 
 
     /*
-       Stop eventuele oude camera.
+       Oude stream stoppen.
     */
 
     if (stream) {
 
         stream
             .getTracks()
-            .forEach(track => track.stop());
+            .forEach(
+                track =>
+                    track.stop()
+            );
 
         stream = null;
     }
@@ -618,37 +826,69 @@ async function startCamera() {
 
     try {
 
+
         stream =
-            await navigator.mediaDevices.getUserMedia({
+            await navigator
+                .mediaDevices
+                .getUserMedia({
 
-                video: {
+                    video: {
 
-                    facingMode: {
-                        ideal: facingMode
-                    }
+                        facingMode: {
 
-                },
+                            ideal:
+                                facingMode
 
-                audio: false
+                        }
 
-            });
+                    },
+
+                    audio: false
+
+                });
 
 
-        video.srcObject =
+        /*
+           Normaal camerabeeld
+        */
+
+        camera.srcObject =
             stream;
 
 
-        await video.play();
+        /*
+           Beide VR-ogen gebruiken
+           dezelfde camera.
+        */
+
+        vrVideoLeft.srcObject =
+            stream;
+
+
+        vrVideoRight.srcObject =
+            stream;
+
+
+        await camera.play();
+
+
+        await vrVideoLeft.play();
+
+
+        await vrVideoRight.play();
 
 
         status.textContent =
             "Camera actief.";
 
-    }
 
+    }
     catch (error) {
 
-        console.error(error);
+
+        console.error(
+            error
+        );
 
 
         if (
@@ -667,7 +907,7 @@ async function startCamera() {
         ) {
 
             status.textContent =
-                "Er is geen camera gevonden.";
+                "Geen camera gevonden.";
 
         }
 
@@ -687,21 +927,21 @@ async function startCamera() {
 
 async function switchCamera() {
 
-    if (facingMode === "environment") {
 
-        facingMode = "user";
+    if (
+        facingMode ===
+        "environment"
+    ) {
+
+        facingMode =
+            "user";
 
     }
-
     else {
 
-        facingMode = "environment";
-
+        facingMode =
+            "environment";
     }
-
-
-    status.textContent =
-        "Camera wordt omgedraaid...";
 
 
     await startCamera();
@@ -709,53 +949,111 @@ async function switchCamera() {
 
 
 /* ==================================================
-   VOLLEDIG SCHERM
+   VR MODUS
+   ================================================== */
+
+function toggleVR() {
+
+
+    vrMode =
+        !vrMode;
+
+
+    if (vrMode) {
+
+
+        document.body
+            .classList
+            .add(
+                "vrMode"
+            );
+
+
+        vrButton.textContent =
+            "📱 Normale weergave";
+
+
+    }
+    else {
+
+
+        document.body
+            .classList
+            .remove(
+                "vrMode"
+            );
+
+
+        vrButton.textContent =
+            "🥽 VR-modus";
+    }
+}
+
+
+/* ==================================================
+   FULLSCREEN
    ================================================== */
 
 async function toggleFullscreen() {
 
+
     try {
 
-        if (!document.fullscreenElement) {
+
+        if (
+            !document.fullscreenElement
+        ) {
+
 
             if (
                 document.documentElement
                     .requestFullscreen
             ) {
 
-                await document.documentElement
+
+                await document
+                    .documentElement
                     .requestFullscreen();
+
+
+            }
+            else if (
+                document.documentElement
+                    .webkitRequestFullscreen
+            ) {
+
+
+                await document
+                    .documentElement
+                    .webkitRequestFullscreen();
+
             }
 
-            else {
-
-                /*
-                   iPhone Safari ondersteunt
-                   de standaard fullscreen API
-                   niet overal.
-
-                   De video kan daar wel
-                   schermvullend worden weergegeven
-                   wanneer de browser dat toestaat.
-                */
-
-                if (
-                    video.webkitEnterFullscreen
-                ) {
-
-                    video.webkitEnterFullscreen();
-                }
-            }
 
         }
-
         else {
 
-            await document.exitFullscreen();
+
+            if (
+                document.exitFullscreen
+            ) {
+
+                await document
+                    .exitFullscreen();
+
+            }
+            else if (
+                document.webkitExitFullscreen
+            ) {
+
+                await document
+                    .webkitExitFullscreen();
+
+            }
         }
 
-    }
 
+    }
     catch (error) {
 
         console.log(
@@ -782,6 +1080,12 @@ switchButton.addEventListener(
 );
 
 
+vrButton.addEventListener(
+    "click",
+    toggleVR
+);
+
+
 fullscreenButton.addEventListener(
     "click",
     toggleFullscreen
@@ -794,61 +1098,15 @@ slider.addEventListener(
 );
 
 
-contrastSlider.addEventListener(
-    "input",
-    updateContrast
-);
-
-
-nightSlider.addEventListener(
-    "input",
-    updateNight
-);
-
-
 /* ==================================================
    INITIALISEREN
    ================================================== */
 
 updateView();
 
-updateContrast();
-
-updateNight();
-
 
 /* ==================================================
-   FULLSCREEN STATUS
-   ================================================== */
-
-document.addEventListener(
-    "fullscreenchange",
-    () => {
-
-        if (document.fullscreenElement) {
-
-            document.body.classList
-                .add("fullscreen");
-
-            fullscreenButton.textContent =
-                "✕ Volledig scherm verlaten";
-
-        }
-
-        else {
-
-            document.body.classList
-                .remove("fullscreen");
-
-            fullscreenButton.textContent =
-                "⛶ Volledig scherm";
-        }
-    }
-);
-
-
-/* ==================================================
-   CAMERA STOPPEN BIJ VERLATEN PAGINA
+   CAMERA STOPPEN
    ================================================== */
 
 window.addEventListener(
@@ -859,10 +1117,14 @@ window.addEventListener(
 
             stream
                 .getTracks()
-                .forEach(track => track.stop());
+                .forEach(
+                    track =>
+                        track.stop()
+                );
         }
     }
 );
+
 
 </script>
 
