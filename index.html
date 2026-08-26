@@ -6,13 +6,15 @@
 <meta name="viewport"
       content="width=device-width,
                initial-scale=1.0,
-               maximum-scale=1.0,
-               user-scalable=no,
                viewport-fit=cover">
 
-<title>RP Gezichtsveld</title>
+<title>RP Gezichtsveld Simulator</title>
 
 <style>
+
+/* ==================================================
+   BASIS
+   ================================================== */
 
 * {
     box-sizing: border-box;
@@ -22,43 +24,110 @@ html,
 body {
     margin: 0;
     padding: 0;
+
     width: 100%;
     height: 100%;
+
     overflow: hidden;
+
     background: #000;
+
     font-family: Arial, sans-serif;
 }
 
 
-/* =========================
-   NORMAAL CAMERA BEELD
-   ========================= */
+/* ==================================================
+   NORMALE WEERGAVE
+   ================================================== */
 
-#camera {
+#normalView {
+
     position: fixed;
+
     inset: 0;
-    width: 100%;
-    height: 100%;
 
-    object-fit: cover;
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+
     background: #000;
-
-    transform-origin: center center;
 
     z-index: 1;
 }
 
 
-/* =========================
-   VR WEERGAVE
-   ========================= */
+#camera {
 
-#vrView {
-    position: fixed;
+    position: absolute;
+
     inset: 0;
 
     width: 100%;
     height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+
+    background: #000;
+}
+
+
+/* ==================================================
+   RP MASKER — NORMALE MODUS
+   ================================================== */
+
+#rpMask {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    z-index: 5;
+
+    pointer-events: none;
+
+    background:
+
+        radial-gradient(
+
+            ellipse
+            var(--field-width)
+            var(--field-height)
+
+            at center,
+
+            transparent 0%,
+
+            transparent 50%,
+
+            rgba(0,0,0,0.10) 60%,
+
+            rgba(0,0,0,0.45) 75%,
+
+            rgba(0,0,0,0.85) 90%,
+
+            #000 100%
+        );
+}
+
+
+/* ==================================================
+   VR WEERGAVE
+   ================================================== */
+
+#vrView {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
 
     display: none;
 
@@ -66,88 +135,97 @@ body {
 
     overflow: hidden;
 
-    z-index: 2;
+    z-index: 1;
 }
 
 
-/*
-   HIER KUN JE DE AFSTAND TUSSEN
-   DE TWEE OGEN INSTELLEN.
+.vrEye {
 
-   Kleinere waarde =
-   cirkels dichter bij elkaar.
+    position: relative;
 
-   Bijvoorbeeld:
-
-   2vw  = dichter bij elkaar
-   4vw  = huidige instelling
-   6vw  = verder uit elkaar
-   8vw  = nog verder
-*/
-
-:root {
-    --eye-gap: 2vw;
-}
-
-
-/* Iedere helft van het VR-scherm */
-
-.eye {
-    position: absolute;
-
-    top: 50%;
-
-    width: 34vw;
-    height: 34vw;
-
-    max-width: 500px;
-    max-height: 500px;
-
-    aspect-ratio: 1 / 1;
-
-    border-radius: 50%;
+    width: 50%;
+    height: 100%;
 
     overflow: hidden;
-
-    transform: translateY(-50%);
 
     background: #000;
 }
 
 
-/* Linkeroog */
+.vrVideo {
 
-#leftEye {
-    left: calc(50% - var(--eye-gap) - 34vw);
-}
-
-
-/* Rechteroog */
-
-#rightEye {
-    right: calc(50% - var(--eye-gap) - 34vw);
-}
-
-
-/*
-   De camera's binnen de cirkels
-*/
-
-.eye video {
     position: absolute;
 
-    width: 100%;
+    top: 0;
+
+    width: 200%;
     height: 100%;
 
     object-fit: cover;
 
-    transform-origin: center center;
+    display: block;
 }
 
 
-/* =========================
-   BEDIENING
-   ========================= */
+/* Linker oog */
+
+#vrLeft .vrVideo {
+
+    left: 0;
+}
+
+
+/* Rechter oog */
+
+#vrRight .vrVideo {
+
+    left: -100%;
+}
+
+
+/* ==================================================
+   VR MASKER
+   ================================================== */
+
+.vrMask {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+
+    background:
+
+        radial-gradient(
+
+            ellipse
+            var(--field-width)
+            var(--field-height)
+
+            at center,
+
+            transparent 0%,
+
+            transparent 50%,
+
+            rgba(0,0,0,0.10) 60%,
+
+            rgba(0,0,0,0.45) 75%,
+
+            rgba(0,0,0,0.85) 90%,
+
+            #000 100%
+        );
+}
+
+
+/* ==================================================
+   CONTROLS
+   ================================================== */
 
 #controls {
 
@@ -157,20 +235,41 @@ body {
     right: 0;
     bottom: 0;
 
-    padding:
-        20px
-        20px
-        calc(20px + env(safe-area-inset-bottom));
+    z-index: 30;
 
-    background: rgba(0,0,0,0.75);
+    width: 100%;
+
+    padding:
+
+        15px
+
+        15px
+
+        calc(
+            15px +
+            env(safe-area-inset-bottom)
+        );
+
+    background:
+        rgba(0,0,0,0.82);
 
     color: white;
 
     text-align: center;
 
-    z-index: 10;
+    max-height: 55vh;
+
+    overflow-y: auto;
+
+    backdrop-filter: blur(8px);
+
+    -webkit-backdrop-filter: blur(8px);
 }
 
+
+/* ==================================================
+   KNOPPEN
+   ================================================== */
 
 button {
 
@@ -178,117 +277,221 @@ button {
 
     width: min(90%, 420px);
 
-    margin: 10px auto;
+    margin: 8px auto;
 
-    padding: 18px;
+    padding: 15px;
 
-    border: 0;
+    border: none;
 
-    border-radius: 15px;
+    border-radius: 14px;
 
-    font-size: 22px;
+    font-size: 19px;
 
     font-weight: bold;
 
     cursor: pointer;
+
+    background: white;
+
+    color: black;
+
+    -webkit-tap-highlight-color:
+        transparent;
 }
 
 
-#start {
-    background: #ffffff;
-    color: #000;
+button:active {
+
+    transform: scale(0.98);
 }
 
 
-#vr {
-    background: #ffffff;
-    color: #000;
-}
-
-
-#fullscreen {
-    background: #ffffff;
-    color: #000;
-}
-
+/* ==================================================
+   SLIDER
+   ================================================== */
 
 label {
 
     display: block;
 
-    font-size: 22px;
+    margin-top: 15px;
 
-    margin-top: 20px;
+    font-size: 18px;
 }
 
 
 input[type="range"] {
 
-    width: 80%;
+    display: block;
 
-    margin: 15px auto;
+    width: min(90%, 500px);
 
     height: 35px;
+
+    margin: 5px auto 10px;
+
+    accent-color: white;
 }
 
+
+/* ==================================================
+   STATUS
+   ================================================== */
 
 #status {
 
-    margin-top: 10px;
+    min-height: 22px;
 
-    font-size: 18px;
+    margin-top: 8px;
 
-    color: #aaaaaa;
+    font-size: 15px;
+
+    color: #ccc;
 }
 
 
-/*
-   In VR-modus worden de normale bediening
-   en het normale camerabeeld verborgen.
-*/
+/* ==================================================
+   VR MODUS
+   ================================================== */
 
-body.vr-mode #camera {
+body.vrMode #normalView {
+
     display: none;
 }
 
 
-body.vr-mode #vrView {
-    display: block;
+body.vrMode #vrView {
+
+    display: flex;
 }
 
 
-body.vr-mode #controls {
-    display: none;
-}
-
+/* ==================================================
+   FULLSCREEN
+   ================================================== */
 
 /*
-   Kleine groene status-indicator
+   Wanneer de browser fullscreen gebruikt,
+   blijven alle onderdelen het volledige
+   scherm gebruiken.
 */
 
-#vrIndicator {
+:fullscreen #normalView {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:fullscreen #camera {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:fullscreen #rpMask {
 
     position: fixed;
 
-    left: 50px;
+    inset: 0;
 
-    top: 50%;
-
-    width: 10px;
-    height: 10px;
-
-    border-radius: 50%;
-
-    background: #00d060;
-
-    display: none;
-
-    z-index: 20;
+    width: 100vw;
+    height: 100vh;
 }
 
 
-body.vr-mode #vrIndicator {
-    display: block;
+/* Safari / iPhone */
+
+:-webkit-full-screen #normalView {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:-webkit-full-screen #camera {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:-webkit-full-screen #rpMask {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+/* ==================================================
+   FULLSCREEN + VR
+   ================================================== */
+
+:fullscreen #vrView {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:fullscreen .vrEye {
+
+    height: 100vh;
+}
+
+
+:fullscreen .vrMask {
+
+    width: 100%;
+    height: 100%;
+}
+
+
+:-webkit-full-screen #vrView {
+
+    width: 100vw;
+    height: 100vh;
+}
+
+
+:-webkit-full-screen .vrEye {
+
+    height: 100vh;
+}
+
+
+:-webkit-full-screen .vrMask {
+
+    width: 100%;
+    height: 100%;
+}
+
+
+/* ==================================================
+   DESKTOP
+   ================================================== */
+
+@media (min-width: 800px) {
+
+    #controls {
+
+        max-width: 650px;
+
+        left: 50%;
+
+        right: auto;
+
+        transform:
+            translateX(-50%);
+
+        border-radius:
+            20px 20px 0 0;
+    }
 }
 
 </style>
@@ -298,79 +501,119 @@ body.vr-mode #vrIndicator {
 <body>
 
 
-<!-- =========================
-     NORMAAL CAMERA BEELD
-     ========================= -->
+<!-- ==================================================
+     NORMALE CAMERA
+     ================================================== -->
 
-<video
-    id="camera"
-    autoplay
-    playsinline
-    muted>
-</video>
+<div id="normalView">
 
+    <video
+        id="camera"
+        autoplay
+        playsinline
+        muted>
+    </video>
 
-<!-- =========================
-     VR BEELD
-     ========================= -->
-
-<div id="vrView">
-
-    <div class="eye" id="leftEye">
-
-        <video
-            id="leftVideo"
-            autoplay
-            playsinline
-            muted>
-        </video>
-
-    </div>
-
-
-    <div class="eye" id="rightEye">
-
-        <video
-            id="rightVideo"
-            autoplay
-            playsinline
-            muted>
-        </video>
-
-    </div>
+    <div id="rpMask"></div>
 
 </div>
 
 
-<!-- Groene indicator -->
+<!-- ==================================================
+     VR MODUS
+     ================================================== -->
 
-<div id="vrIndicator"></div>
+<div id="vrView">
 
 
-<!-- =========================
+    <!-- LINKER OOG -->
+
+    <div
+        id="vrLeft"
+        class="vrEye">
+
+        <video
+            id="vrVideoLeft"
+            class="vrVideo"
+            autoplay
+            playsinline
+            muted>
+        </video>
+
+        <div class="vrMask"></div>
+
+    </div>
+
+
+    <!-- RECHTER OOG -->
+
+    <div
+        id="vrRight"
+        class="vrEye">
+
+        <video
+            id="vrVideoRight"
+            class="vrVideo"
+            autoplay
+            playsinline
+            muted>
+        </video>
+
+        <div class="vrMask"></div>
+
+    </div>
+
+
+</div>
+
+
+<!-- ==================================================
      BEDIENING
-     ========================= -->
+     ================================================== -->
 
 <div id="controls">
 
+
     <button id="start">
-        Camera starten
+
+        📷 Camera starten
+
     </button>
 
 
-    <button id="vr">
-        VR-modus
+    <button id="switch">
+
+        🔄 Camera omkeren
+
+    </button>
+
+
+    <button id="vrButton">
+
+        🥽 VR-modus
+
     </button>
 
 
     <button id="fullscreen">
-        Volledig scherm
+
+        ⛶ Volledig scherm
+
     </button>
 
 
+    <!-- GEZICHTSVELD -->
+
     <label>
+
         Gezichtsveld:
-        <span id="value">100%</span>
+
+        <strong id="value">
+
+            100%
+
+        </strong>
+
     </label>
 
 
@@ -383,151 +626,189 @@ body.vr-mode #vrIndicator {
         step="1">
 
 
-    <div id="status"></div>
+    <div id="status">
+
+        Camera nog niet gestart.
+
+    </div>
+
+
+    <div style="
+        max-width:600px;
+        margin:10px auto;
+        color:#aaa;
+        font-size:14px;
+        line-height:1.4;
+    ">
+
+        100% = normaal gezichtsveld.<br>
+
+        5% = zeer sterk beperkt
+        centraal gezichtsveld.
+
+    </div>
+
 
 </div>
 
 
 <script>
 
-/* =====================================================
+
+/* ==================================================
    ELEMENTEN
-   ===================================================== */
+   ================================================== */
 
 const camera =
-    document.getElementById("camera");
+    document.getElementById(
+        "camera"
+    );
 
 
-const leftVideo =
-    document.getElementById("leftVideo");
+const vrVideoLeft =
+    document.getElementById(
+        "vrVideoLeft"
+    );
 
 
-const rightVideo =
-    document.getElementById("rightVideo");
+const vrVideoRight =
+    document.getElementById(
+        "vrVideoRight"
+    );
 
 
 const startButton =
-    document.getElementById("start");
+    document.getElementById(
+        "start"
+    );
+
+
+const switchButton =
+    document.getElementById(
+        "switch"
+    );
 
 
 const vrButton =
-    document.getElementById("vr");
+    document.getElementById(
+        "vrButton"
+    );
 
 
 const fullscreenButton =
-    document.getElementById("fullscreen");
+    document.getElementById(
+        "fullscreen"
+    );
 
 
 const slider =
-    document.getElementById("fov");
+    document.getElementById(
+        "fov"
+    );
 
 
 const value =
-    document.getElementById("value");
+    document.getElementById(
+        "value"
+    );
 
 
 const status =
-    document.getElementById("status");
+    document.getElementById(
+        "status"
+    );
 
 
-/* =====================================================
+/* ==================================================
    VARIABELEN
-   ===================================================== */
+   ================================================== */
 
 let stream = null;
+
+let facingMode =
+    "environment";
 
 let vrMode = false;
 
 
-/*
-   De huidige zoom.
-
-   100% = normaal beeld
-
-   5% = zeer klein gezichtsveld
-*/
-
-let currentFov = 100;
-
-
-/* =====================================================
-   GEZICHTSVELD AANPASSEN
-   ===================================================== */
+/* ==================================================
+   GEZICHTSVELD
+   ================================================== */
 
 function updateView() {
 
-    currentFov =
-        Number(slider.value);
+
+    const fov =
+        Number(
+            slider.value
+        );
 
 
     value.textContent =
-        currentFov + "%";
+        fov + "%";
 
 
     /*
-       100% = zoom 1
-       50%  = zoom 2
-       20%  = zoom 5
-       5%   = zoom 20
+       De waarde bepaalt de grootte
+       van het centrale zichtbare gebied.
+
+       100% = bijna volledig beeld
+
+       5% = zeer klein centraal beeld
     */
 
-    const zoom =
-        100 / currentFov;
+
+    const width =
+        5 + (fov * 0.95);
 
 
-    /*
-       Normale camera
-    */
-
-    camera.style.transform =
-        `scale(${zoom})`;
+    const height =
+        5 + (fov * 0.90);
 
 
-    /*
-       VR-camera's
-    */
+    document.documentElement
+        .style
+        .setProperty(
+            "--field-width",
+            width + "%"
+        );
 
-    leftVideo.style.transform =
-        `scale(${zoom})`;
 
-    rightVideo.style.transform =
-        `scale(${zoom})`;
+    document.documentElement
+        .style
+        .setProperty(
+            "--field-height",
+            height + "%"
+        );
 }
 
 
-/* =====================================================
-   SLIDER
-   ===================================================== */
-
-slider.addEventListener(
-    "input",
-    updateView
-);
-
-
-/* =====================================================
+/* ==================================================
    CAMERA STARTEN
-   ===================================================== */
+   ================================================== */
 
 async function startCamera() {
 
-    status.textContent = "";
+
+    status.textContent =
+        "Camera wordt gestart...";
 
 
     if (
         !navigator.mediaDevices ||
-        !navigator.mediaDevices.getUserMedia
+        !navigator.mediaDevices
+            .getUserMedia
     ) {
 
         status.textContent =
-            "Deze browser ondersteunt geen cameratoegang.";
+            "Deze browser ondersteunt geen camera.";
 
         return;
     }
 
 
     /*
-       Bestaande camera stoppen
+       Oude stream stoppen.
     */
 
     if (stream) {
@@ -535,82 +816,257 @@ async function startCamera() {
         stream
             .getTracks()
             .forEach(
-                track => track.stop()
+                track =>
+                    track.stop()
             );
+
+        stream = null;
     }
 
 
     try {
 
+
         stream =
-            await navigator.mediaDevices.getUserMedia({
+            await navigator
+                .mediaDevices
+                .getUserMedia({
 
-                video: {
+                    video: {
 
-                    facingMode: {
+                        facingMode: {
 
-                        ideal: "environment"
+                            ideal:
+                                facingMode
 
-                    }
+                        }
 
-                },
+                    },
 
-                audio: false
+                    audio: false
 
-            });
+                });
 
 
         /*
-           Hetzelfde camerabeeld
-           wordt naar alle drie de video's gestuurd.
+           Normaal camerabeeld
         */
 
         camera.srcObject =
             stream;
 
 
-        leftVideo.srcObject =
+        /*
+           Beide VR-ogen gebruiken
+           dezelfde camera.
+        */
+
+        vrVideoLeft.srcObject =
             stream;
 
 
-        rightVideo.srcObject =
+        vrVideoRight.srcObject =
             stream;
 
 
         await camera.play();
 
 
-        await leftVideo.play();
+        await vrVideoLeft.play();
 
 
-        await rightVideo.play();
+        await vrVideoRight.play();
 
 
         status.textContent =
-            "Camera actief";
+            "Camera actief.";
 
 
-        /*
-           Zorg dat huidige sliderwaarde
-           direct wordt toegepast.
-        */
-
-        updateView();
+    }
+    catch (error) {
 
 
-    } catch (error) {
+        console.error(
+            error
+        );
 
-        console.error(error);
 
-        status.textContent =
-            "Camera kon niet worden gestart.";
+        if (
+            error.name ===
+            "NotAllowedError"
+        ) {
+
+            status.textContent =
+                "Cameratoegang is geweigerd. Geef deze website toegang tot de camera.";
+
+        }
+
+        else if (
+            error.name ===
+            "NotFoundError"
+        ) {
+
+            status.textContent =
+                "Geen camera gevonden.";
+
+        }
+
+        else {
+
+            status.textContent =
+                "Camera kon niet worden gestart: "
+                + error.message;
+        }
     }
 }
 
 
-/* =====================================================
-   CAMERA START KNOP
-   ===================================================== */
+/* ==================================================
+   CAMERA OMDRAAIEN
+   ================================================== */
+
+async function switchCamera() {
+
+
+    if (
+        facingMode ===
+        "environment"
+    ) {
+
+        facingMode =
+            "user";
+
+    }
+    else {
+
+        facingMode =
+            "environment";
+    }
+
+
+    await startCamera();
+}
+
+
+/* ==================================================
+   VR MODUS
+   ================================================== */
+
+function toggleVR() {
+
+
+    vrMode =
+        !vrMode;
+
+
+    if (vrMode) {
+
+
+        document.body
+            .classList
+            .add(
+                "vrMode"
+            );
+
+
+        vrButton.textContent =
+            "📱 Normale weergave";
+
+
+    }
+    else {
+
+
+        document.body
+            .classList
+            .remove(
+                "vrMode"
+            );
+
+
+        vrButton.textContent =
+            "🥽 VR-modus";
+    }
+}
+
+
+/* ==================================================
+   FULLSCREEN
+   ================================================== */
+
+async function toggleFullscreen() {
+
+
+    try {
+
+
+        if (
+            !document.fullscreenElement
+        ) {
+
+
+            if (
+                document.documentElement
+                    .requestFullscreen
+            ) {
+
+
+                await document
+                    .documentElement
+                    .requestFullscreen();
+
+
+            }
+            else if (
+                document.documentElement
+                    .webkitRequestFullscreen
+            ) {
+
+
+                await document
+                    .documentElement
+                    .webkitRequestFullscreen();
+
+            }
+
+
+        }
+        else {
+
+
+            if (
+                document.exitFullscreen
+            ) {
+
+                await document
+                    .exitFullscreen();
+
+            }
+            else if (
+                document.webkitExitFullscreen
+            ) {
+
+                await document
+                    .webkitExitFullscreen();
+
+            }
+        }
+
+
+    }
+    catch (error) {
+
+        console.log(
+            "Fullscreen niet beschikbaar:",
+            error
+        );
+    }
+}
+
+
+/* ==================================================
+   EVENT LISTENERS
+   ================================================== */
 
 startButton.addEventListener(
     "click",
@@ -618,239 +1074,59 @@ startButton.addEventListener(
 );
 
 
-/* =====================================================
-   VR MODUS
-   ===================================================== */
+switchButton.addEventListener(
+    "click",
+    switchCamera
+);
 
-async function enterVRMode() {
-
-    if (!stream) {
-
-        await startCamera();
-
-        /*
-           Even wachten tot de camera
-           daadwerkelijk beschikbaar is.
-        */
-
-        if (!stream) {
-            return;
-        }
-    }
-
-
-    vrMode = true;
-
-
-    document.body.classList.add(
-        "vr-mode"
-    );
-
-
-    /*
-       Probeer automatisch liggend scherm
-       te gebruiken.
-    */
-
-    try {
-
-        if (
-            screen.orientation &&
-            screen.orientation.lock
-        ) {
-
-            await screen.orientation.lock(
-                "landscape"
-            );
-        }
-
-    } catch (error) {
-
-        console.log(
-            "Orientation lock niet beschikbaar."
-        );
-    }
-
-
-    /*
-       Probeer volledig scherm te activeren.
-    */
-
-    try {
-
-        if (!document.fullscreenElement) {
-
-            await document.documentElement.requestFullscreen();
-        }
-
-    } catch (error) {
-
-        console.log(
-            "Fullscreen niet beschikbaar."
-        );
-    }
-
-
-    updateView();
-}
-
-
-/* =====================================================
-   VR MODUS VERLATEN
-   ===================================================== */
-
-async function exitVRMode() {
-
-    vrMode = false;
-
-
-    document.body.classList.remove(
-        "vr-mode"
-    );
-
-
-    /*
-       Volledig scherm verlaten
-    */
-
-    try {
-
-        if (document.fullscreenElement) {
-
-            await document.exitFullscreen();
-        }
-
-    } catch (error) {
-
-        console.log(error);
-    }
-
-
-    /*
-       Orientation lock vrijgeven
-    */
-
-    try {
-
-        if (
-            screen.orientation &&
-            screen.orientation.unlock
-        ) {
-
-            screen.orientation.unlock();
-        }
-
-    } catch (error) {
-
-        console.log(error);
-    }
-}
-
-
-/* =====================================================
-   VR KNOP
-   ===================================================== */
 
 vrButton.addEventListener(
     "click",
-    async () => {
-
-        if (!vrMode) {
-
-            await enterVRMode();
-
-        } else {
-
-            await exitVRMode();
-        }
-
-    }
+    toggleVR
 );
 
-
-/* =====================================================
-   VOLLEDIG SCHERM
-   ===================================================== */
 
 fullscreenButton.addEventListener(
     "click",
-    async () => {
-
-        try {
-
-            if (!document.fullscreenElement) {
-
-                await document.documentElement
-                    .requestFullscreen();
-
-            } else {
-
-                await document.exitFullscreen();
-            }
-
-        } catch (error) {
-
-            console.error(error);
-        }
-
-    }
+    toggleFullscreen
 );
 
 
-/* =====================================================
-   FULLSCREEN STATUS BIJWERKEN
-   ===================================================== */
-
-document.addEventListener(
-    "fullscreenchange",
-    () => {
-
-        if (document.fullscreenElement) {
-
-            fullscreenButton.textContent =
-                "Volledig scherm verlaten";
-
-        } else {
-
-            fullscreenButton.textContent =
-                "Volledig scherm";
-        }
-
-    }
+slider.addEventListener(
+    "input",
+    updateView
 );
 
 
-/* =====================================================
-   BIJ ROTEREN VAN DE TELEFOON
-   ===================================================== */
-
-window.addEventListener(
-    "orientationchange",
-    () => {
-
-        /*
-           Browser opnieuw laten berekenen
-           nadat het scherm is gedraaid.
-        */
-
-        setTimeout(() => {
-
-            updateView();
-
-        }, 300);
-
-    }
-);
-
-
-/* =====================================================
-   INITIËLE INSTELLING
-   ===================================================== */
+/* ==================================================
+   INITIALISEREN
+   ================================================== */
 
 updateView();
 
-</script>
 
+/* ==================================================
+   CAMERA STOPPEN
+   ================================================== */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        if (stream) {
+
+            stream
+                .getTracks()
+                .forEach(
+                    track =>
+                        track.stop()
+                );
+        }
+    }
+);
+
+
+</script>
 
 </body>
 </html>
